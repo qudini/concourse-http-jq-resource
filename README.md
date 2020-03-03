@@ -28,22 +28,78 @@ Does nothing.
 
 Does nothing.
 
-## Example
+## Examples
+### Check deployment version on Bamboo
+
+Triggering a job in concourse based on a release in bamboo.
 
 ```yaml
 resource_types:
-- name: http-resource
+- name: http-jq-resource
   type: docker-image
   source:
-    repository: qudini/concourse-http-resource
+    repository: qudini/concourse-http-jq-resource
     tag: latest
 
 resources:
-  - name: bamboo-resource
-    type: http-resource
+  - name: bamboo-staging-release
+    type: http-jq-resource
     source:
-      base_url: https://www.bamboo.com/rest/api/latest/deploy/environment/{env_id}/results?os_authType=basic
+      base_url: https://<Bamboo instance>/rest/api/latest/deploy/environment/{env_id}/results?os_authType=basic
       jq_filter: "{.results[] | {"deploymentVersionName":.deploymentVersionName,"id":.id|tostring,"key":.deploymentVersion.items[0].planResultKey.key,"startedDate":.startedDate|tostring,finishedDate:.finishedDate|tostring}"
       # bamboo_readonly_credentials = username:password
       credentials: ((bamboo_readonly_credentials))
+```
+Results in
+```json
+[
+    {
+      "deploymentVersionName": "master-718",
+      "id": "107282481",
+      "key": "KEY-QD678-718",
+      "startedDate": "1579089918295",
+      "finishedDate": "1579090971755"
+    },
+    {
+      "deploymentVersionName": "master-717",
+      "id": "107282475",
+      "key": "KEY-QD678-717",
+      "startedDate": "1579027585024",
+      "finishedDate": "1579028083334"
+    }
+]
+```
+### Check Docker Hub for new docker image tag to trigger a job
+
+```yaml
+resource_types:
+- name: http-jq-resource
+  type: docker-image
+  source:
+    repository: qudini/concourse-http-jq-resource
+    tag: latest
+
+resources:
+  - name: dockerhub-http-jq-release
+    type: http-jq-resource
+    source:
+      base_url: https://registry.hub.docker.com/v1/repositories/qudini/concourse-http-jq-resource/tags
+      jq_filter: ".[] | {releaseTag:.name}"
+```
+Results in 
+```json
+[
+    {
+      "releaseTag": "latest"
+    },
+    {
+      "releaseTag": "0.1.0"
+    },
+    {
+      "releaseTag": "v0.1.1"
+    },
+    {
+      "releaseTag": "v0.1.2"
+    }
+]
 ```
