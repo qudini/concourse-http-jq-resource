@@ -32,7 +32,7 @@ Does nothing.
 
 ```yaml
 resource_types:
-- name: bamboo-resource
+- name: http-resource
   type: docker-image
   source:
     repository: qudini/concourse-http-resource
@@ -43,6 +43,7 @@ resources:
     type: http-resource
     source:
       base_url: https://www.bamboo.com/rest/api/latest/deploy/environment/{env_id}/results?os_authType=basic
-      jq_filter: "{version:.results[].deploymentVersion.id|tostring"
-      credentials: ((username)):((password))
+      jq_filter: "{.results[] | {"deploymentVersionName":.deploymentVersionName,"id":.id|tostring,"key":.deploymentVersion.items[0].planResultKey.key,"startedDate":.startedDate|tostring,finishedDate:.finishedDate|tostring}"
+      # bamboo_readonly_credentials = username:password
+      credentials: ((bamboo_readonly_credentials))
 ```
