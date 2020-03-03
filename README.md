@@ -1,4 +1,4 @@
-## Github PR resource
+# Concourse HTTP jq resource
 
 A Concourse resource to make HTTP calls to JSON endpoints, and parse them using custom JQ filter. 
 
