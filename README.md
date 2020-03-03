@@ -30,6 +30,9 @@ Does nothing.
 
 ## Examples
 ### Check deployment version on Bamboo
+
+Triggering a job in concourse based on a release in bamboo.
+
 ```yaml
 resource_types:
 - name: http-jq-resource
