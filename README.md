@@ -66,7 +66,8 @@ Results in
     }
 ]
 ```
-### Check Docker Hub for new docker image tag
+### Check Docker Hub for new docker image tag to trigger a job
+
 ```yaml
 resource_types:
 - name: http-jq-resource
