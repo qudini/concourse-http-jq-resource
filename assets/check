@@ -1,0 +1,27 @@
+#!/bin/bash
+set -e
+TMPDIR=${TMPDIR:-/tmp}
+
+exec 3>&1 # make stdout available as fd 3 for the result
+exec 1>&2 # redirect all output to stderr for logging
+
+logs=/opt/resource/logs/check.log
+touch $logs
+
+payload=$TMPDIR/echo-request
+cat > "$payload" <&0
+
+targetUrl=$(jq -r '.source.base_url' < "$payload")
+jqFilter=$(jq -r '.source.jq_filter' < "$payload")
+credentials=$(echo -n "$(jq -r '.source.credentials' < "$payload")" | base64)
+
+response=$TMPDIR/echo-response
+
+wget --header="Authorization: Basic $credentials" \
+     --header='Accept: application/json' \
+     -O "$response" "$targetUrl"
+
+versions=$(jq -r "$jqFilter" < "$response" | jq -s)
+
+echo "$versions" >> $logs
+echo "$versions" >&3
