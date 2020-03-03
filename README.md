@@ -88,4 +88,4 @@ resources:
 ```
 Results in 
 
-![screenshot of resource with release tags](https://raw.githubusercontent.com/qudini/concourse-http-jq-resource/TECH-784-add-screenshots/screenshot-1.png)
+![screenshot of resource with release tags](https://raw.githubusercontent.com/qudini/concourse-http-jq-resource/master/screenshot-1.png)
