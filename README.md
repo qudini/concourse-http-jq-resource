@@ -1,9 +1,6 @@
 ## Github PR resource
 
-[original-resource]: https://github.com/concourse/echo-resource
-
 A Concourse resource to make HTTP calls to JSON endpoints, and parse them using custom JQ filter. 
-Inspired by [the original][original-resource].
 
 ## Source Configuration
 
@@ -39,6 +36,7 @@ resource_types:
   type: docker-image
   source:
     repository: qudini/concourse-http-resource
+    tag: latest
 
 resources:
   - name: bamboo-resource
@@ -46,5 +44,5 @@ resources:
     source:
       base_url: https://www.bamboo.com/rest/api/latest/deploy/environment/{env_id}/results?os_authType=basic
       jq_filter: "{version:.results[].deploymentVersion.id|tostring"
-      credentials: root:hunter2
+      credentials: ((username)):((password))
 ```
