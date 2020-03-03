@@ -42,7 +42,7 @@ resources:
   - name: bamboo-staging-release
     type: http-jq-resource
     source:
-      base_url: https://www.bamboo.com/rest/api/latest/deploy/environment/{env_id}/results?os_authType=basic
+      base_url: https://<Bamboo instance>/rest/api/latest/deploy/environment/{env_id}/results?os_authType=basic
       jq_filter: "{.results[] | {"deploymentVersionName":.deploymentVersionName,"id":.id|tostring,"key":.deploymentVersion.items[0].planResultKey.key,"startedDate":.startedDate|tostring,finishedDate:.finishedDate|tostring}"
       # bamboo_readonly_credentials = username:password
       credentials: ((bamboo_readonly_credentials))
