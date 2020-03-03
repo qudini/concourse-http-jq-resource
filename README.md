@@ -87,19 +87,5 @@ resources:
       jq_filter: ".[] | {releaseTag:.name}"
 ```
 Results in 
-```json
-[
-    {
-      "releaseTag": "latest"
-    },
-    {
-      "releaseTag": "0.1.0"
-    },
-    {
-      "releaseTag": "v0.1.1"
-    },
-    {
-      "releaseTag": "v0.1.2"
-    }
-]
-```
+
+![screenshot of resource with release tags](https://raw.githubusercontent.com/qudini/concourse-http-jq-resource/master/screenshot-1.png)
