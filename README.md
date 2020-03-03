@@ -32,7 +32,7 @@ Does nothing.
 
 ```yaml
 resource_types:
-- name: bamboo-resource
+- name: http-resource
   type: docker-image
   source:
     repository: qudini/concourse-http-resource
