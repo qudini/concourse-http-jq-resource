@@ -11,17 +11,22 @@ touch $logs
 payload=$TMPDIR/echo-request
 cat > "$payload" <&0
 
-targetUrl=$(jq -r '.source.base_url' < "$payload")
-jqFilter=$(jq -r '.source.jq_filter' < "$payload")
+targetUrl=$(jq -r '.source.base_url' "$payload")
+jqFilter=$(jq -r '.source.jq_filter' "$payload")
+debug=$(jq -r '.source.debug // false' "$payload")
 
 optionalArguments=()
+if [[ "$debug" == true ]]; then
+  set -x
+  optionalArguments+=("-S")
+fi
 
-unencodedCredentials="$(jq -r '.source.credentials // ""' < "$payload")"
+unencodedCredentials="$(jq -r '.source.credentials // ""' "$payload")"
 if [[ -n "$unencodedCredentials" ]]; then
   optionalArguments+=("--header=\"Authorization: Basic $(echo -n "$unencodedCredentials" | base64)\"")
 fi
 
-mapfile -t headers < <(jq -r '(.source.headers // [])[]' < "$payload")
+mapfile -t headers < <(jq -r '(.source.headers // [])[]' "$payload")
 for header in "${headers[@]}"; do
   optionalArguments+=("--header=${header}")
 done
@@ -32,7 +37,7 @@ wget "${optionalArguments[@]}" \
      --header='Accept: application/json' \
      -O "$response" "$targetUrl"
 
-versions=$(jq -r "$jqFilter" < "$response" | jq -s)
+versions=$(jq -r "$jqFilter" "$response" | jq -Ms)
 
 echo "$versions" >> $logs
 echo "$versions" >&3
