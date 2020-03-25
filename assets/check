@@ -11,8 +11,8 @@ touch $logs
 payload=$TMPDIR/echo-request
 cat > "$payload" <&0
 
-targetUrl=$(jq -r '.source.base_url' "$payload")
-jqFilter=$(jq -r '.source.jq_filter' "$payload")
+targetUrl=$(jq -er '.source.base_url' "$payload")
+jqFilter=$(jq -r '.source.jq_filter // "."' "$payload")
 debug=$(jq -r '.source.debug // false' "$payload")
 
 optionalArguments=()
