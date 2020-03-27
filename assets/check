@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 TMPDIR=${TMPDIR:-/tmp}
 
 exec 3>&1 # make stdout available as fd 3 for the result
@@ -11,17 +11,33 @@ touch $logs
 payload=$TMPDIR/echo-request
 cat > "$payload" <&0
 
-targetUrl=$(jq -r '.source.base_url' < "$payload")
-jqFilter=$(jq -r '.source.jq_filter' < "$payload")
-credentials=$(echo -n "$(jq -r '.source.credentials' < "$payload")" | base64)
+targetUrl=$(jq -er '.source.base_url' "$payload")
+jqFilter=$(jq -r '.source.jq_filter // "."' "$payload")
+debug=$(jq -r '.source.debug // false' "$payload")
+
+optionalArguments=()
+if [[ "$debug" == true ]]; then
+  set -x
+  optionalArguments+=("-S")
+fi
+
+unencodedCredentials="$(jq -r '.source.credentials // ""' "$payload")"
+if [[ -n "$unencodedCredentials" ]]; then
+  optionalArguments+=("--header=\"Authorization: Basic $(echo -n "$unencodedCredentials" | base64)\"")
+fi
+
+mapfile -t headers < <(jq -r '(.source.headers // [])[]' "$payload")
+for header in "${headers[@]}"; do
+  optionalArguments+=("--header=${header}")
+done
 
 response=$TMPDIR/echo-response
 
-wget --header="Authorization: Basic $credentials" \
+wget "${optionalArguments[@]}" \
      --header='Accept: application/json' \
      -O "$response" "$targetUrl"
 
-versions=$(jq -r "$jqFilter" < "$response" | jq -s)
+versions=$(jq -r "$jqFilter" "$response" | jq -Ms)
 
 echo "$versions" >> $logs
 echo "$versions" >&3

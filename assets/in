@@ -16,4 +16,4 @@ version=$(jq -r '.version // ""' < $payload)
 
 echo $version > $destination/version
 
-echo '{ "version" : {}, "metadata": []  }' >&3
+jq -Mcn --argjson version "$version" '{version: $version, metadata: []}' >&3
